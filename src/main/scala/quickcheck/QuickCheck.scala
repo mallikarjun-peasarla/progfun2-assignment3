@@ -39,14 +39,6 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
   }
 
   property("priority") = forAll { (h: H) =>
-    def delMinTillEmpty(h: H, seq: Seq[Int] = Seq()): Seq[Int] = {
-      if(isEmpty(h)) {
-        Seq()
-      } else {
-        val min = findMin(h)
-        delMinTillEmpty(deleteMin(h), seq :+ min)
-      }
-    }
     delMinTillEmpty(h) == delMinTillEmpty(h).sorted
   }
 
@@ -56,9 +48,19 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     mergedMin == findMin(h1) || mergedMin == findMin(h2)
   }
 
-  //  val prop1 = forAll { p =>
-//    p
-//  }
-//  prop1
+  property("melding is associative") = forAll { (h:H, i:H, j:H) =>
+    val a = meld(meld(h, i), j)
+    val b = meld(h, meld(i, j))
+    delMinTillEmpty(a) == delMinTillEmpty(b)
+  }
+
+  def delMinTillEmpty(h: H): List[Int] = {
+    if(isEmpty(h)) {
+      Nil
+    } else {
+      val min = findMin(h)
+      min :: delMinTillEmpty(deleteMin(h))
+    }
+  }
 
 }
